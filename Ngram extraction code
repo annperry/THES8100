@@ -1,0 +1,115 @@
+## Set working directory to your desired location
+
+##  Load libraries
+
+library(dplyr)
+library(tidytext)
+library(SnowballC)
+library(magrittr)
+library(tm)
+library(lattice)
+library(igraph)
+library(ngram)
+library(wordcloud)
+library(RWeka)
+library(quanteda)
+
+
+Neu5df <- read.csv("Neu_5.csv",stringsAsFactors=FALSE)
+Neg5df <- read.csv("Neg_5.csv",stringsAsFactors=FALSE)
+Pos5df <- read.csv("Pos_5.csv",stringsAsFactors=FALSE)
+
+
+Neu5keywords <- Neu5df$Tweet_Text
+Neu5Corpus <- VCorpus(VectorSource(Neu5keywords))
+Neu5Corpus <- VCorpus(VectorSource(Neu5Corpus))
+
+Neg5keywords <- Neg5df$Tweet_Text
+Neg5Corpus <- VCorpus(VectorSource(Neg5keywords))
+Neg5Corpus <- VCorpus(VectorSource(Neg5Corpus))
+
+Pos5keywords <- Pos5df$Tweet_Text
+Pos5Corpus <- VCorpus(VectorSource(Pos5keywords))
+Pos5Corpus <- VCorpus(VectorSource(Pos5Corpus))
+
+
+## Create unigrams
+
+Neu5dtm <- DocumentTermMatrix(Neu5Corpus,control = list(wordLengths=c(3, 50)))
+Neu5dtm
+as.matrix(Neu5dtm)
+Neu5dtmSparseRemoved <- removeSparseTerms(Neu5dtm, 0.98)
+Neu5dtmSparseRemoved
+as.matrix(Neu5dtmSparseRemoved)
+Neu5Unigrams<- colSums(as.matrix(Neu5dtmSparseRemoved))
+Neu5Unigrams
+write.csv(Neu5Unigrams,"Neu5Unigrams.csv")
+
+Neg5dtm <- DocumentTermMatrix(Neg5Corpus,control = list(wordLengths=c(3, 50)))
+Neg5dtm
+as.matrix(Neg5dtm)
+Neg5dtmSparseRemoved <- removeSparseTerms(Neg5dtm, 0.98)
+Neg5dtmSparseRemoved
+as.matrix(Neg5dtmSparseRemoved)
+Neg5Unigrams<- colSums(as.matrix(Neg5dtmSparseRemoved))
+Neg5Unigrams
+write.csv(Neg5Unigrams,"Neg5Unigrams.csv")
+
+Pos5dtm <- DocumentTermMatrix(Pos5Corpus,control = list(wordLengths=c(3, 50)))
+Pos5dtm
+as.matrix(Pos5dtm)
+Pos5dtmSparseRemoved <- removeSparseTerms(Pos5dtm, 0.98)
+Pos5dtmSparseRemoved
+as.matrix(Pos5dtmSparseRemoved)
+Pos5Unigrams<- colSums(as.matrix(Pos5dtmSparseRemoved))
+Pos5Unigrams
+write.csv(Pos5Unigrams,"Pos5Unigrams.csv")
+
+## Create bigrams trigrams and fourgrams
+BigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 2, max = 2))
+TrigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 3, max = 3))
+FourgramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 4, max = 4))
+
+Pos5Bigrams <- TermDocumentMatrix(Pos5Corpus, control = list(tokenize = BigramTokenizer))
+Pos5Trigrams <- TermDocumentMatrix(Pos5Corpus, control = list(tokenize = TrigramTokenizer))
+Pos5Fourgrams <- TermDocumentMatrix(Pos5Corpus, control = list(tokenize = FourgramTokenizer))
+
+Pos5Bigramcsv <- data.frame(term=rownames(as.matrix(Pos5Bigrams)),frequency(rowSums(as.matrix(Pos5Bigrams))))
+Pos5Trigramcsv <- data.frame(term=rownames(as.matrix(Pos5Trigrams)),frequency(rowSums(as.matrix(Pos5Trigrams))))
+Pos5Fourgramcsv <- data.frame(term=rownames(as.matrix(Pos5Fourgrams)),frequency(rowSums(as.matrix(Pos5Fourgrams))))
+
+
+write.csv(Pos5Bigramcsv, "Pos5Bigrams.csv")
+write.csv(Pos5Trigramcsv, "Pos5Trigrams.csv")
+write.csv(Pos5Fourgramcsv, "Pos5Fourgrams.csv")
+
+
+
+Neg5Bigrams <- TermDocumentMatrix(Neg5Corpus, control = list(tokenize = BigramTokenizer))
+Neg5Trigrams <- TermDocumentMatrix(Neg5Corpus, control = list(tokenize = TrigramTokenizer))
+Neg5Fourgrams <- TermDocumentMatrix(Neg5Corpus, control = list(tokenize = FourgramTokenizer))
+
+Neg5Bigramcsv <- data.frame(term=rownames(as.matrix(Neg5Bigrams)),frequency(rowSums(as.matrix(Neg5Bigrams))))
+Neg5Trigramcsv <- data.frame(term=rownames(as.matrix(Neg5Trigrams)),frequency(rowSums(as.matrix(Neg5Trigrams))))
+Neg5Fourgramcsv <- data.frame(term=rownames(as.matrix(Neg5Fourgrams)),frequency(rowSums(as.matrix(Neg5Fourgrams))))
+
+
+write.csv(Neg5Bigramcsv, "Neg5Bigrams.csv")
+write.csv(Neg5Trigramcsv, "Neg5Trigrams.csv")
+write.csv(Neg5Fourgramcsv, "Neg5Fourgrams.csv")
+
+
+Neu5Bigrams <- TermDocumentMatrix(Neu5Corpus, control = list(tokenize = BigramTokenizer))
+Neu5Trigrams <- TermDocumentMatrix(Neu5Corpus, control = list(tokenize = TrigramTokenizer))
+Neu5Fourgrams <- TermDocumentMatrix(Neu5Corpus, control = list(tokenize = FourgramTokenizer))
+
+Neu5Bigramcsv <- data.frame(term=rownames(as.matrix(Neu5Bigrams)),frequency(rowSums(as.matrix(Neu5Bigrams))))
+Neu5Trigramcsv <- data.frame(term=rownames(as.matrix(Neu5Trigrams)),frequency(rowSums(as.matrix(Neu5Trigrams))))
+Neu5Fourgramcsv <- data.frame(term=rownames(as.matrix(Neu5Fourgrams)),frequency(rowSums(as.matrix(Neu5Fourgrams))))
+
+
+write.csv(Neu5Bigramcsv, "Neu5Bigrams.csv")
+write.csv(Neu5Trigramcsv, "Neu5Trigrams.csv")
+write.csv(Neu5Fourgramcsv, "Neu5Fourgrams.csv")
+
+
